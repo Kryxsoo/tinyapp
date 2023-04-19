@@ -8,13 +8,12 @@ const generateRandomString = () => {
   const charactersLength = characters.length;
   let result = '';
   for (let i = 0; i < 6; i++) {
-    result += alphaNumerical.charAt(Math.floor(Math.random() * alphaNumerical.length));
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
   }
   return result;
 };
-
+// Middleware
 app.use(express.urlencoded({extended: true}));
-
 app.set("view engine", "ejs")
 
 const urlDatabase = {
@@ -52,6 +51,7 @@ app.get("/set", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+//form submission page
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
@@ -60,9 +60,11 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render("urls_show", templateVars);
 });
-
-
+//post route to receive form submissions
 app.post("/urls", (req, res) => {
   console.log(req.body); //log post request to console
-  res.send("Ok");
+  const shortUrl = generateRandomString();
+  urlDatabase[shortUrl] = req.body.longURL;
+  // console.log(urlDatabase);
+  res.redirect(`/urls/${shortUrl}`);
 })
