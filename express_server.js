@@ -14,8 +14,8 @@ const generateRandomString = () => {
 };
 // Middleware
 app.use(express.urlencoded({extended: true}));
-// app.use(cookieParser());
-app.use(express.urlencoded({ extended: false}));
+app.use(cookieParser());
+// app.use(express.urlencoded({ extended: false}));
 app.set("view engine", "ejs")
 
 const urlDatabase = {
@@ -57,10 +57,6 @@ app.get("/set", (req, res) => {
 app.get('/login', (req, res) => {
 res.render('login');
 });
-
-app.post('/login', (req, res) => {
-  console.log(req.body)
-})
 
 const users = {
   userRandomID:{
