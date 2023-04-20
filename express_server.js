@@ -14,6 +14,8 @@ const generateRandomString = () => {
 };
 // Middleware
 app.use(express.urlencoded({extended: true}));
+// app.use(cookieParser());
+app.use(express.urlencoded({ extended: false}));
 app.set("view engine", "ejs")
 
 const urlDatabase = {
@@ -50,6 +52,27 @@ app.get("/set", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
+
+//Login
+app.get('/login', (req, res) => {
+res.render('login');
+});
+
+app.post('/login', (req, res) => {
+  console.log(req.body)
+})
+
+const users = {
+  userRandomID:{
+  id: "abc"
+}
+}
+
+app.post('/login', (req, res) => {
+  let cookie = req.body.username
+  res.cookie("username", cookie)
+  res.redirect('/urls');
+})
 
 //form submission page
 app.get("/urls/new", (req, res) => {
