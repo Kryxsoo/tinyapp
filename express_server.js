@@ -14,7 +14,7 @@ const generateRandomString = () => {
 };
 // Middleware
 app.use(express.urlencoded({extended: true}));
-app.set("view engine", "ejs")
+app.set("view engine", "ejs");
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -40,13 +40,10 @@ app.get("/hello", (req, res) => {
 app.get("/set", (req, res) => {
   const a = 1;
   res.send(`a = ${a}`);
- });
- 
- app.get("/fetch", (req, res) => {
-  res.send(`a = ${a}`);
- });
+});
+
 // Main page
- app.get("/urls", (req, res) => {
+app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
@@ -67,25 +64,25 @@ app.post("/urls", (req, res) => {
   urlDatabase[shortUrl] = req.body.longURL;
   // console.log(urlDatabase);
   res.redirect(`/urls/${shortUrl}`);
-})
+});
 //delete
 app.post('/urls/:shortUrl/delete', (req, res) => {
   console.log(req.params.shortUrl);
-  delete urlDatabase[req.params.shortUrl]
+  delete urlDatabase[req.params.shortUrl];
   res.redirect("/urls");
-})
+});
 
 app.get('/urls/:shortUrl', (req, res) => {
-  const longURL = req.params.longUrl
+  const longURL = req.params.longUrl;
   const templateVars = {
     longURL: urlDatabase[longURL]
-  }
-return res.render('urls_show', templateVars)
-})
+  };
+  return res.render('urls_show', templateVars);
+});
 
 app.post('/urls/:shorturl', (req, res) => {
-  const shortUrl = req.params.shorturl
-  const longUrl = req.body.longURL
-urlDatabase[shortUrl] = longUrl
-return res.redirect("/urls");
+  const shortUrl = req.params.shorturl;
+  const longUrl = req.body.longURL;
+  urlDatabase[shortUrl] = longUrl;
+  return res.redirect("/urls");
 });
