@@ -13,17 +13,26 @@ const generateRandomString = () => {
   return result;
 };
 // Middleware
-app.use(express.urlencoded({extended: true}));
-app.use(cookieParser());
-// app.use(express.urlencoded({ extended: false}));
+//*D04 app.use(express.urlencoded({extended: true}));
+const cookieParser = require('cookie-parser')
+app.use(express.urlencoded({ extended: false}));
 app.set("view engine", "ejs")
+app.use(cookieParser())
 
+//url database
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+//user database
+const users = {
+  id: 'username',
+  email: 'a@a.com',
+  password: '123'
+}
 
 app.get("/", (req, res) => {
+  console.log('Cookies: ', req.cookies)
   res.send("Hello!");
 });
 
@@ -33,10 +42,6 @@ app.listen(PORT, () => {
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
 app.get("/set", (req, res) => {
@@ -49,7 +54,10 @@ app.get("/set", (req, res) => {
  });
 // Main page
  app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { 
+    urls: urlDatabase,
+    username: req.cookies["username"]
+   };
   res.render("urls_index", templateVars);
 });
 
@@ -58,13 +66,8 @@ app.get('/login', (req, res) => {
 res.render('login');
 });
 
-const users = {
-  userRandomID:{
-  id: "abc"
-}
-}
-
 app.post('/login', (req, res) => {
+  console.log(req.body)
   let cookie = req.body.username
   res.cookie("username", cookie)
   res.redirect('/urls');
@@ -72,13 +75,21 @@ app.post('/login', (req, res) => {
 
 //form submission page
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = { 
+    username: req.cookies["username"]
+   };
+  res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
+  const templateVars = {
+     id: req.params.id,
+     longURL: urlDatabase[req.params.id],
+     username: req.cookies["username"]
+     };
   res.render("urls_show", templateVars);
 });
+
 //post route to receive form submissions
 app.post("/urls", (req, res) => {
   console.log(req.body); //log post request to console
@@ -96,8 +107,10 @@ app.post('/urls/:shortUrl/delete', (req, res) => {
 
 app.get('/urls/:shortUrl', (req, res) => {
   const longURL = req.params.longUrl
+
   const templateVars = {
-    longURL: urlDatabase[longURL]
+    longURL: urlDatabase[longURL],
+    username: req.cookies["username"]
   }
 return res.render('urls_show', templateVars)
 })
