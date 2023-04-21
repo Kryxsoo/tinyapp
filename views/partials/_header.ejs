@@ -7,11 +7,19 @@
   <title>Header</title>
 </head>
 <body>
-<form action="/login" method="POST">
-  <label>Username</label>
-  <input name="username"/>
-  <button type="submit">Login</button>
-  <%= username %>
-</form>
+  <!-- Logged in -->
+  <% if(username){ %>
+    <h1>Logged in as: <%= username %>!</h1>
+    <form action="/logout" method="POST">
+      <button type="logout">Logout</button>
+    </form>
+    <!-- If logged in -->
+  <% } else{ %>  
+    <form action="/login" method="POST">
+      <label>Username</label>
+      <input name="username"/>
+      <button type="login">Login</button>
+    </form>
+ <% } %>
 </body>
 </html>

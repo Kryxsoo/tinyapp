@@ -73,6 +73,18 @@ app.post('/login', (req, res) => {
   res.redirect('/urls');
 })
 
+//logout
+app.get('/logout', (req, res) => {
+  res.render('logout');
+  });
+  
+  app.post('/logout', (req, res) => {
+    console.log(req.body)
+    res.clearCookie("username")
+    res.redirect('/urls');
+  })
+
+
 //form submission page
 app.get("/urls/new", (req, res) => {
   const templateVars = { 
