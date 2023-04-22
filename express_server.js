@@ -44,9 +44,10 @@ app.get("/set", (req, res) => {
 
 // Main page
 app.get("/urls", (req, res) => {
+  userID = req.cookies["user_id"]
   const templateVars = { 
     urls: urlDatabase,
-    username: req.cookies["username"]
+    user: users[userID]
   };
   res.render("urls_index", templateVars);
 });
@@ -59,7 +60,7 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   console.log(req.body)
   let cookie = req.body.username
-  res.cookie("username", cookie)
+  res.cookie("user_id", cookie)
   res.redirect('/urls');
 })
 
@@ -70,36 +71,63 @@ app.get('/logout', (req, res) => {
 
 app.post('/logout', (req, res) => {
   console.log(req.body)
-  res.clearCookie("username")
+  res.clearCookie("user_id")
   res.redirect('/urls');
 })
 
 //user database
+const randomID = generateRandomString();
 const users = {
-  id: 'username',
-  email: 'a@a.com',
-  password: '123'
-}
+  userRandomID: {
+    id: 'userRandomID',
+    email: "a@a.com",
+    password: "123",
+  },
+  user2RandomID: {
+    id: 'user2RandomID',
+    email: "b@b.com",
+    password: "456",
+  },
+};
+
 
 //Registration
-app.get('/register', (req, res) => {
-  const templateVars = { 
-    urls: urlDatabase,
-    username: req.cookies["username"]
-  };
-  res.render("register", templateVars);
-});
-
+// app.get('/register', (req, res) => {
+  //   const templateVars = { 
+    //     email: users.userRandomID.email,
+    //     password: users.userRandomID.password
+    //   };
+    //   console.log(templateVars)
+    //   res.render("register", templateVars);
+    // });
+    app.get('/register', (req, res) => {
+      userID = req.cookies["user_id"]
+      const templateVars = { 
+        urls: urlDatabase,
+        email: users.userRandomID.email,
+        password: users.userRandomID.password,
+        user: null
+      };
+      res.render("register", templateVars)
+    })
+    
 app.post('/register', (req, res) => {
-  console.log(req.body)
-  const templateVars = {
+  const randomID = generateRandomString();
+  users[randomID] = {
+    id: randomID,
     email: req.body.email,
     password: req.body.password
   };
-  res.redirect('/urls', templateVars)
+  res.cookie('user_id', randomID)
+  console.log(users);
+  res.redirect('/urls')
 });
-
+  // if (!email || !password) {
+  //   console.log("working")
+// }
 //form submission page
+
+
 app.get("/urls/new", (req, res) => {
   const templateVars = { 
     username: req.cookies["username"]
