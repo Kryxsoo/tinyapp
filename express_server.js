@@ -16,10 +16,10 @@ const generateRandomString = () => {
 const getUserByEmail = function (email, users) {
   for (const id in users) {
     if (users[id].email === email) {
-      return true;
+      return false;
     }
   }
-  return false;
+  return true;
 };
 // Middleware
 const cookieParser = require('cookie-parser')
@@ -62,14 +62,18 @@ app.get("/urls", (req, res) => {
 });
 
 //Login
-app.get('/login', (req, res) => {
-  res.render('login');
+app.get("/login", (req, res) => {
+  userID = req.cookies["user_id"]
+  const templateVars = { 
+    urls: urlDatabase,
+    user: users[userID]
+  };
+  res.render("login", templateVars);
 });
 
 app.post('/login', (req, res) => {
   console.log(req.body)
   let cookie = req.body.username
-  
   res.cookie("user_id", cookie)
   res.redirect('/urls');
 })
@@ -114,18 +118,19 @@ app.get('/register', (req, res) => {
 });
     
 app.post('/register', (req, res) => {
-  const randomID = generateRandomString();
-  users[randomID] = {
-    id: randomID,
-    email: req.body.email,
-    password: req.body.password,
-  };
   if (req.body.email === '' || req.body.password === '') {
     return res.status(400).send('Error 400: Missing E-mail or password');
   }
   if (getUserByEmail(req.body.email, users)) {
     return res.status(400).send('Error 400: Already in use');
   }
+  const randomID = generateRandomString();
+  users[randomID] = {
+    id: randomID,
+    email: req.body.email,
+    password: req.body.password,
+  };
+  console.log(users[randomID]);
   res.cookie('user_id', randomID)
   res.redirect('/urls');
 });
