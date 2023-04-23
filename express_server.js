@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
-//random 6 key generator, use for later
+//random 6 key generator
 const generateRandomString = () => {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   const charactersLength = characters.length;
@@ -11,6 +11,15 @@ const generateRandomString = () => {
     result += characters.charAt(Math.floor(Math.random() * characters.length));
   }
   return result;
+};
+// Email checker
+const getUserByEmail = function (email, users) {
+  for (const id in users) {
+    if (users[id].email === email) {
+      return true;
+    }
+  }
+  return false;
 };
 // Middleware
 const cookieParser = require('cookie-parser')
@@ -60,6 +69,7 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   console.log(req.body)
   let cookie = req.body.username
+  
   res.cookie("user_id", cookie)
   res.redirect('/urls');
 })
@@ -92,42 +102,35 @@ const users = {
 
 
 //Registration
-// app.get('/register', (req, res) => {
-  //   const templateVars = { 
-    //     email: users.userRandomID.email,
-    //     password: users.userRandomID.password
-    //   };
-    //   console.log(templateVars)
-    //   res.render("register", templateVars);
-    // });
-    app.get('/register', (req, res) => {
-      userID = req.cookies["user_id"]
-      const templateVars = { 
-        urls: urlDatabase,
-        email: users.userRandomID.email,
-        password: users.userRandomID.password,
-        user: null
-      };
+app.get('/register', (req, res) => {
+  userID = req.cookies["user_id"]
+  const templateVars = { 
+    urls: urlDatabase,
+    email: users.userRandomID.email,
+    password: users.userRandomID.password,
+    user: null
+  };
       res.render("register", templateVars)
-    })
+});
     
 app.post('/register', (req, res) => {
   const randomID = generateRandomString();
   users[randomID] = {
     id: randomID,
     email: req.body.email,
-    password: req.body.password
+    password: req.body.password,
   };
+  if (req.body.email === '' || req.body.password === '') {
+    return res.status(400).send('Error 400: Missing E-mail or password');
+  }
+  if (getUserByEmail(req.body.email, users)) {
+    return res.status(400).send('Error 400: Already in use');
+  }
   res.cookie('user_id', randomID)
-  console.log(users);
-  res.redirect('/urls')
+  res.redirect('/urls');
 });
-  // if (!email || !password) {
-  //   console.log("working")
-// }
+
 //form submission page
-
-
 app.get("/urls/new", (req, res) => {
   const templateVars = { 
     username: req.cookies["username"]
@@ -152,6 +155,7 @@ app.post("/urls", (req, res) => {
   // console.log(urlDatabase);
   res.redirect(`/urls/${shortUrl}`);
 });
+
 //delete
 app.post('/urls/:shortUrl/delete', (req, res) => {
   console.log(req.params.shortUrl);
@@ -161,7 +165,6 @@ app.post('/urls/:shortUrl/delete', (req, res) => {
 
 app.get('/urls/:shortUrl', (req, res) => {
   const longURL = req.params.longUrl
-
   const templateVars = {
     longURL: urlDatabase[longURL],
     username: req.cookies["username"]
