@@ -16,10 +16,10 @@ const generateRandomString = () => {
 const getUserByEmail = function (email, users) {
   for (const id in users) {
     if (users[id].email === email) {
-      return false;
+      return users[id];
     }
   }
-  return true;
+  return undefined;
 };
 // Middleware
 const cookieParser = require('cookie-parser')
@@ -31,6 +31,21 @@ app.use(cookieParser())
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
+};
+
+//user database
+const randomID = generateRandomString();
+const users = {
+  userRandomID: {
+    id: 'userRandomID',
+    email: "a@a.com",
+    password: "123",
+  },
+  user2RandomID: {
+    id: 'user2RandomID',
+    email: "b@b.com",
+    password: "456",
+  },
 };
 
 app.get("/", (req, res) => {
@@ -72,11 +87,19 @@ app.get("/login", (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  console.log(req.body)
-  let cookie = req.body.username
+  const user = getUserByEmail(req.body.email, users)
+  if (!user) {
+    return res.status(403).send("User doesn't exist");
+  }
+  if (user.password !== req.body.password) {
+    return res.status(403).send('Incorrect password');
+  }
+  let cookie = req.body.email
   res.cookie("user_id", cookie)
   res.redirect('/urls');
 })
+
+
 
 //logout
 app.get('/logout', (req, res) => {
@@ -88,22 +111,6 @@ app.post('/logout', (req, res) => {
   res.clearCookie("user_id")
   res.redirect('/urls');
 })
-
-//user database
-const randomID = generateRandomString();
-const users = {
-  userRandomID: {
-    id: 'userRandomID',
-    email: "a@a.com",
-    password: "123",
-  },
-  user2RandomID: {
-    id: 'user2RandomID',
-    email: "b@b.com",
-    password: "456",
-  },
-};
-
 
 //Registration
 app.get('/register', (req, res) => {
