@@ -4,26 +4,8 @@ const PORT = 8080; // default port 8080
 const bcrypt = require("bcryptjs");
 const password = "purple-monkey-dinosaur"; // found in the req.body object
 const hashedPassword = bcrypt.hashSync(password, 10);
+const { generateRandomString, getUserByEmail } = require('./helpers');
 
-//random 6 key generator
-const generateRandomString = () => {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const charactersLength = characters.length;
-  let result = '';
-  for (let i = 0; i < 6; i++) {
-    result += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return result;
-};
-// Email checker
-const getUserByEmail = function(email, users) {
-  for (const id in users) {
-    if (users[id].email === email) {
-      return users[id];
-    }
-  }
-  return undefined;
-};
 // Middleware
 const cookieParser = require('cookie-parser');
 app.use(express.urlencoded({ extended: false}));
