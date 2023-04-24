@@ -66,26 +66,7 @@ app.get("/set", (req, res) => {
   res.send(`a = ${a}`);
 });
 
-// Main page
-app.get("/urls", (req, res) => {
-  userID = req.cookies["user_id"];
-  const templateVars = {
-    urls: urlDatabase,
-    user: users[userID]
-  };
-  res.render("urls_index", templateVars);
-});
-
-//Login
-app.get("/login", (req, res) => {
-  userID = req.cookies["user_id"];
-  const templateVars = {
-    urls: urlDatabase,
-    user: users[userID]
-  };
-  res.render("login", templateVars);
-});
-
+//POST Login
 app.post('/login', (req, res) => {
   const user = getUserByEmail(req.body.email, users);
   if (!user) {
@@ -100,30 +81,14 @@ app.post('/login', (req, res) => {
 });
 
 
-
-//logout
-app.get('/logout', (req, res) => {
-  res.render('logout');
-});
-
+//POST logout
 app.post('/logout', (req, res) => {
   console.log(req.body);
   res.clearCookie("user_id");
   res.redirect('/urls');
 });
 
-//Registration
-app.get('/register', (req, res) => {
-  userID = req.cookies["user_id"];
-  const templateVars = {
-    urls: urlDatabase,
-    email: users.userRandomID.email,
-    password: users.userRandomID.password,
-    user: null
-  };
-  res.render("register", templateVars);
-});
-    
+//POST register
 app.post('/register', (req, res) => {
   if (req.body.email === '' || req.body.password === '') {
     return res.status(400).send('Error 400: Missing E-mail or password');
@@ -142,8 +107,66 @@ app.post('/register', (req, res) => {
   res.redirect('/urls');
 });
 
-//form submission page
+//POST route to receive form submissions
+app.post("/urls", (req, res) => {
+  console.log(req.body); //log post request to console
+  const shortUrl = generateRandomString();
+  urlDatabase[shortUrl] = req.body.longURL;
+  // console.log(urlDatabase);
+  res.redirect(`/urls/${shortUrl}`);
+});
+
+
+
+// Main page
+app.get("/urls", (req, res) => {
+  userID = req.cookies["user_id"];
+  const templateVars = {
+    urls: urlDatabase,
+    user: users[userID]
+  };
+  res.render("urls_index", templateVars);
+});
+
+//GET Login
+app.get("/login", (req, res) => {
+  userID = req.cookies["user_id"];
+  if (!userID) {
+   res.render('/urls');
+  }
+  const templateVars = {
+    urls: urlDatabase,
+    user: users[userID]
+  };
+  res.render("login", templateVars);
+});
+
+//GET Logout
+app.get('/logout', (req, res) => {
+  res.render('logout');
+});
+
+//GET register
+app.get('/register', (req, res) => {
+  userID = req.cookies["user_id"];
+  if (userID) {
+    return res.render('urls_index');
+  }
+  const templateVars = {
+    urls: urlDatabase,
+    email: users.userRandomID.email,
+    password: users.userRandomID.password,
+    user: null
+  };
+  res.render("register", templateVars);
+});
+
+//GET new url
 app.get("/urls/new", (req, res) => {
+  userID = req.cookies["user_id"];
+  if (!userID) {
+    return res.render('login');
+  }
   const templateVars = {
     username: req.cookies["username"]
   };
@@ -159,22 +182,6 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-//post route to receive form submissions
-app.post("/urls", (req, res) => {
-  console.log(req.body); //log post request to console
-  const shortUrl = generateRandomString();
-  urlDatabase[shortUrl] = req.body.longURL;
-  // console.log(urlDatabase);
-  res.redirect(`/urls/${shortUrl}`);
-});
-
-//delete
-app.post('/urls/:shortUrl/delete', (req, res) => {
-  console.log(req.params.shortUrl);
-  delete urlDatabase[req.params.shortUrl];
-  res.redirect("/urls");
-});
-
 app.get('/urls/:shortUrl', (req, res) => {
   const longURL = req.params.longUrl;
   const templateVars = {
@@ -184,9 +191,18 @@ app.get('/urls/:shortUrl', (req, res) => {
   return res.render('urls_show', templateVars);
 });
 
+
+
 app.post('/urls/:shorturl', (req, res) => {
   const shortUrl = req.params.shorturl;
   const longUrl = req.body.longURL;
   urlDatabase[shortUrl] = longUrl;
   return res.redirect("/urls");
+});
+
+//delete
+app.post('/urls/:shortUrl/delete', (req, res) => {
+  console.log(req.params.shortUrl);
+  delete urlDatabase[req.params.shortUrl];
+  res.redirect("/urls");
 });
