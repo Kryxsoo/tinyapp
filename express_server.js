@@ -1,6 +1,9 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
+const bcrypt = require("bcryptjs");
+const password = "purple-monkey-dinosaur"; // found in the req.body object
+const hashedPassword = bcrypt.hashSync(password, 10);
 
 //random 6 key generator
 const generateRandomString = () => {
@@ -29,8 +32,14 @@ app.use(cookieParser());
 
 //url database
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
 
 //user database
@@ -39,12 +48,12 @@ const users = {
   userRandomID: {
     id: 'userRandomID',
     email: "a@a.com",
-    password: "123",
+    password: bcrypt.hashSync(password, 10),
   },
   user2RandomID: {
     id: 'user2RandomID',
     email: "b@b.com",
-    password: "456",
+    password: bcrypt.hashSync(password, 10),
   },
 };
 
@@ -83,7 +92,6 @@ app.post('/login', (req, res) => {
 
 //POST logout
 app.post('/logout', (req, res) => {
-  console.log(req.body);
   res.clearCookie("user_id");
   res.redirect('/urls');
 });
@@ -100,19 +108,19 @@ app.post('/register', (req, res) => {
   users[randomID] = {
     id: randomID,
     email: req.body.email,
-    password: req.body.password,
+    password: bcrypt.hashSync(password, 10),
   };
-  console.log(users[randomID]);
+  console.log(users[randomID].password);
   res.cookie('user_id', req.body.email);
   res.redirect('/urls');
 });
 
 //POST route to receive form submissions
 app.post("/urls", (req, res) => {
-  console.log(req.body); //log post request to console
+  console.log(req.body);
   const shortUrl = generateRandomString();
   urlDatabase[shortUrl] = req.body.longURL;
-  // console.log(urlDatabase);
+  console.log(urlDatabase);
   res.redirect(`/urls/${shortUrl}`);
 });
 
@@ -131,9 +139,6 @@ app.get("/urls", (req, res) => {
 //GET Login
 app.get("/login", (req, res) => {
   userID = req.cookies["user_id"];
-  if (!userID) {
-   res.render('/urls');
-  }
   const templateVars = {
     urls: urlDatabase,
     user: users[userID]
