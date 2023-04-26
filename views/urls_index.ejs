@@ -14,7 +14,7 @@
       integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
       crossorigin="anonymous"
     />
-    <title>TinyApp</title>
+    <title>My URLS - TinyApp</title>
   </head>
   <body>
     <%- include('partials/_header') %>
@@ -30,15 +30,17 @@
           </tr>
         </thead>
         <tbody>
-          <% for (let id in urls) { %>
+          <% for (let url in urls) { %>
             <tr>
-              <td><%= id %></td>
-              <td><a href="#"> <%= urls[id] %> </a></td>
+              <!-- short urls -->
+              <td><a href="#"> <%= url %></a></td>
+              <!-- long urls -->
+              <td><%= urls[url].longURL %></td>
               <td>
-                <form method="POST" action="/urls/<%= id %>/delete"><button type="submit">Delete</button></form>
+                <form method="POST" action="/urls/<%= url %>/delete"><button type="submit">Delete</button></form>
               </td>
               <td>
-                <form method="GET" action="/urls/<%= id %>"><button type="submit">Edit</button></form> 
+                <form method="GET" action="/urls/<%= url %>"><button type="submit">Edit</button></form> 
               </td>
             </tr>
           <% } %>
